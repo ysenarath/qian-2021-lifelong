@@ -21,4 +21,4 @@ preprocessor: https://pypi.org/project/tweet-preprocessor/
 
 # How to Run?
 
-python -m src.vae_lbsoinn.py --train_path TRAIN_PATH --dev_path DEV_PATH --test_path TEST_PATH --cand_limit 1000 --keep_all_node --fix_per_task_mem_size
+python -m src.main --train_path TRAIN_PATH --dev_path DEV_PATH --test_path TEST_PATH --cand_limit 1000 --keep_all_node --fix_per_task_mem_size
