@@ -162,7 +162,6 @@ def train(
     training_mean += mem_mean
     batch_size = training_config["batch_size"]
     gpu = training_config["gpu"]
-
     parameters = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = optim.Adam(parameters, training_config["lr"])
     prev_loss = 100
@@ -406,12 +405,14 @@ def evaluate(pos_scores: list, neg_socres: list, original_data: list) -> Dict[st
 
 def remove_unseen_group(dataset, seen_groups):
     cleaned_data = []
-    for text, pos_group, neg_groups in dataset:
-        neg_cands = [cand for cand in neg_groups if cand in seen_groups]
+    for text, pos_group, neg_group in dataset:
+        neg_cands = [cand for cand in neg_group if cand in seen_groups]
         if len(neg_cands) > 0:
             cleaned_data.append((text, pos_group, neg_cands))
         else:
             pass
+    if len(cleaned_data) == 0:
+        raise ValueError
     return cleaned_data
 
 
@@ -428,10 +429,10 @@ def run_sequence(
     else:
         model_config["vocab_size"] = 28996
     if model_config["vae_model"] == "original":
-        model = VAEModel(model_config)
+        model = VAEModel(**model_config)
     else:
         assert model_config["vae_model"] == "mask"
-        model = VAEMaskDecodeModel(model_config)
+        model = VAEMaskDecodeModel(**model_config)
     if torch.cuda.is_available():
         model = model.cuda(training_config["gpu"])
 

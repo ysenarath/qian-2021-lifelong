@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from src.vae_lbsoinn import run_sequence
 
@@ -174,23 +175,28 @@ def main():
         "keep_node": options.keep_all_node,
         "gamma": options.gamma,
     }
-    cat_order = [
-        "anti_immigration.csv",
-        "anti_semitism.csv",
-        "hate_music.csv",
-        "anti_catholic.csv",
-        "ku_klux_klan.csv",
-        "anti_muslim.csv",
-        "black_separatist.csv",
-        "white_nationalist.csv",
-        "neo_nazi.csv",
-        "anti_lgbtq.csv",
-        "christian_identity.csv",
-        "holocaust_identity.csv",
-        "neo_confederate.csv",
-        "racist_skinhead.csv",
-        "radical_traditional_catholic.csv",
-    ]
+    cat_order = []
+    order_fp = Path(options.train_path).parent / "order.txt"
+    with open(order_fp, "r") as f:
+        for line in f:
+            cat_order.append(line.strip())
+    # cat_order = [
+    #     "anti_immigration.csv",
+    #     "anti_semitism.csv",
+    #     "hate_music.csv",
+    #     "anti_catholic.csv",
+    #     "ku_klux_klan.csv",
+    #     "anti_muslim.csv",
+    #     "black_separatist.csv",
+    #     "white_nationalist.csv",
+    #     "neo_nazi.csv",
+    #     "anti_lgbtq.csv",
+    #     "christian_identity.csv",
+    #     "holocaust_identity.csv",
+    #     "neo_confederate.csv",
+    #     "racist_skinhead.csv",
+    #     "radical_traditional_catholic.csv",
+    # ]
     # cat_order = ['neo_nazi.csv',
     #              'racist_skinhead.csv',
     #              'anti_semitism.csv',

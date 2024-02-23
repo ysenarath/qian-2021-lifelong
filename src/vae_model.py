@@ -28,7 +28,8 @@ class VAEModel(nn.Module):
         gpu: str,
         similarity: Literal["cos", "l2"],
         loss_margin: float,
-        wv_matrix: np.ndarray,
+        wv_matrix: np.ndarray = None,
+        **kwargs,
     ):
         super().__init__()
         self.MODEL = model
@@ -277,7 +278,8 @@ class VAEMaskDecodeModel(nn.Module):
         gpu: str,
         similarity: Literal["cos", "l2"],
         loss_margin: float,
-        wv_matrix: np.ndarray,
+        wv_matrix: np.ndarray = None,
+        **kwargs,
     ):
         super(VAEMaskDecodeModel, self).__init__()
         self.MODEL = model

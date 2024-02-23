@@ -31,12 +31,12 @@ def bert_prepare_data(
     data_logv = []
     if lower_case is True:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-uncased-vocab.txt",
+            str(resource_path / "bert-base-uncased-vocab.txt"),
             lowercase=True,
         )
     else:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-cased-vocab.txt",
+            str(resource_path / "bert-base-cased-vocab.txt"),
             lowercase=False,
         )
     for text, pos_group, neg_groups in data:
@@ -104,11 +104,11 @@ def bert_prepare_esoinn_data(
     data_token_pos = []
     if lower_case is True:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-uncased-vocab.txt", lowercase=True
+            str(resource_path / "bert-base-uncased-vocab.txt"), lowercase=True
         )
     else:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-cased-vocab.txt", lowercase=False
+            str(resource_path / "bert-base-cased-vocab.txt"), lowercase=False
         )
     for text, pos_group, _ in data:
         tokens_text = tokenizer.encode(
@@ -161,12 +161,12 @@ def bert_prepare_memory(
     all_memory_logv = []
     if lower_case is True:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-uncased-vocab.txt",
+            str(resource_path / "bert-base-uncased-vocab.txt"),
             lowercase=True,
         )
     else:
         tokenizer = BertWordPieceTokenizer(
-            resource_path / "bert-base-cased-vocab.txt",
+            str(resource_path / "bert-base-cased-vocab.txt"),
             lowercase=False,
         )
     if mean_logv_size == 0:
