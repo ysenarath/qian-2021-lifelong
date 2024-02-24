@@ -394,8 +394,15 @@ def evaluate(pos_scores: list, neg_socres: list, original_data: list) -> Dict[st
     assert cnt_data_sample == len(pos_scores)
     macro_f1 = f1_score(eval_label, eval_pred, average="macro")
     micro_f1 = f1_score(eval_label, eval_pred, average="micro")
+    try:
+        eval_label_bin = [len(x) > 0 for x in eval_label]
+        eval_pred_bin = [len(x) > 0 for x in eval_pred]
+        bin_f1 = f1_score(eval_label_bin, eval_pred_bin, average="binary")
+    except ValueError:
+        bin_f1 = 0.0
     acc = accuracy_score(eval_label, eval_pred)
     dict = {
+        "f1": bin_f1,
         "macro_f1": macro_f1,
         "micro_f1": micro_f1,
         "acc": acc,
@@ -492,9 +499,11 @@ def run_sequence(
     for fname in cat_order:
         cat_name = fname[:-4]
         testing_data[cat_name] = []
+        _tmp_pos_group = set()
         with open(os.path.join(testing_pos_path, fname), "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
+                _tmp_pos_group.add(row["pos_group"])
                 testing_data[cat_name].append(
                     (
                         row["text"],
@@ -502,13 +511,16 @@ def run_sequence(
                         row["neg_group"].split("&&"),
                     )
                 )
+        assert len(_tmp_pos_group) > 0, "no testing data for " + cat_name
 
     for fname in cat_order:
         cat_name = fname[:-4]
         dev_data[cat_name] = []
+        _tmp_pos_group = set()
         with open(os.path.join(dev_pos_path, fname), "r") as f:
             reader = csv.DictReader(f)
             for row in reader:
+                _tmp_pos_group.add(row["pos_group"])
                 dev_data[cat_name].append(
                     (
                         row["text"],
@@ -516,6 +528,7 @@ def run_sequence(
                         row["neg_group"].split("&&"),
                     )
                 )
+        assert len(_tmp_pos_group) > 0, "no dev data for " + cat_name
 
     seen_groups = []
 
@@ -563,7 +576,10 @@ def run_sequence(
         wrapped_ranking_forward_testing_data = []
         for j in range(i + 1):
             current_testing_data.append(
-                remove_unseen_group(testing_data[cat_order[j][:-4]], seen_groups)
+                remove_unseen_group(
+                    testing_data[cat_order[j][:-4]],
+                    seen_groups,
+                )
             )
         for j in range(i + 1, len(cat_order) - 1):
             forward_testing_data.append(testing_data[cat_order[j][:-4]])
@@ -761,18 +777,21 @@ def run_sequence(
             )
             for test_set in wrapped_ranking_current_testing_data
         ]
-        average_results = {"acc": [], "macro": [], "micro": []}
+        average_results = {"acc": [], "macro": [], "micro": [], "f1": []}
         for ind_pred, pred in enumerate(preds):
             pos_scores, neg_scores = pred
             result = evaluate(pos_scores, neg_scores, current_testing_data[ind_pred])
             average_results["acc"].append(result["acc"])
             average_results["micro"].append(result["micro_f1"])
             average_results["macro"].append(result["macro_f1"])
+            average_results["f1"].append(result["f1"])
             print(
                 "ranking back macro:\t",
                 result["macro_f1"],
                 "\tranking back micro:\t",
                 result["micro_f1"],
+                "\tranking back f1\t",
+                result["f1"],
                 "\tranking back acc\t",
                 result["acc"],
             )
@@ -781,6 +800,8 @@ def run_sequence(
             statistics.mean(average_results["macro"]),
             "\tranking back avg micro:\t",
             statistics.mean(average_results["micro"]),
+            "\tranking back avg f1:\t",
+            statistics.mean(average_results["f1"]),
             "\tranking back avg acc:\t",
             statistics.mean(average_results["acc"]),
         )
@@ -795,7 +816,7 @@ def run_sequence(
                 )
                 for test_set in wrapped_ranking_forward_testing_data
             ]
-            average_results = {"acc": [], "macro": [], "micro": []}
+            average_results = {"acc": [], "macro": [], "micro": [], "f1": []}
             for ind_pred, pred in enumerate(preds):
                 pos_scores, neg_scores = pred
                 result = evaluate(
@@ -804,11 +825,14 @@ def run_sequence(
                 average_results["acc"].append(result["acc"])
                 average_results["micro"].append(result["micro_f1"])
                 average_results["macro"].append(result["macro_f1"])
+                average_results["f1"].append(result["f1"])
                 print(
                     "ranking forw macro:\t",
                     result["macro_f1"],
                     "\tranking forw micro:\t",
                     result["micro_f1"],
+                    "\tranking forw f1:\t",
+                    result["f1"],
                     "\tranking forw acc\t",
                     result["acc"],
                 )
@@ -817,6 +841,8 @@ def run_sequence(
                 statistics.mean(average_results["macro"]),
                 "\tranking forw avg micro:\t",
                 statistics.mean(average_results["micro"]),
+                "\tranking forw avg f1:\t",
+                statistics.mean(average_results["f1"]),
                 "\tranking forw avg acc:\t",
                 statistics.mean(average_results["acc"]),
             )
