@@ -1,0 +1,8 @@
+numpy
+pandas
+scikit-learn
+torch
+# https://download.pytorch.org/whl/cu115/torch-1.11.0%2Bcu115-cp39-cp39-linux_x86_64.whl
+transformers
+tokenizers
+tweet-preprocessor
