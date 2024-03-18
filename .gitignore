@@ -168,3 +168,4 @@ data/
 
 # personal scripts
 scripts/rsync.sh
+scripts/sbatch.sh
