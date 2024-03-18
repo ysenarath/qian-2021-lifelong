@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
 
+import pandas as pd
+
 from src.vae_lbsoinn import run_sequence
 
 
@@ -13,6 +15,12 @@ def main():
     )
     parser.add_argument(
         "--vae_model", default="mask", help="available models: original, mask"
+    )
+    parser.add_argument(
+        "--results_path",
+        type=str,
+        required=True,
+        help="path to save the results",
     )
     parser.add_argument(
         "--save_model",
@@ -180,69 +188,6 @@ def main():
     with open(order_fp, "r") as f:
         for line in f:
             cat_order.append(line.strip())
-    # cat_order = [
-    #     "anti_immigration.csv",
-    #     "anti_semitism.csv",
-    #     "hate_music.csv",
-    #     "anti_catholic.csv",
-    #     "ku_klux_klan.csv",
-    #     "anti_muslim.csv",
-    #     "black_separatist.csv",
-    #     "white_nationalist.csv",
-    #     "neo_nazi.csv",
-    #     "anti_lgbtq.csv",
-    #     "christian_identity.csv",
-    #     "holocaust_identity.csv",
-    #     "neo_confederate.csv",
-    #     "racist_skinhead.csv",
-    #     "radical_traditional_catholic.csv",
-    # ]
-    # cat_order = ['neo_nazi.csv',
-    #              'racist_skinhead.csv',
-    #              'anti_semitism.csv',
-    #              'ku_klux_klan.csv',
-    #              'white_nationalist.csv',
-    #              'anti_immigration.csv',
-    #              'anti_muslim.csv',
-    #              'anti_catholic.csv',
-    #              'radical_traditional_catholic.csv',
-    #              'anti_lgbtq.csv',
-    #              'neo_confederate.csv',
-    #              'holocaust_identity.csv',
-    #              'hate_music.csv',
-    #              'black_separatist.csv',
-    #              'christian_identity.csv']
-
-    # cat_order=['ku_klux_klan.csv',
-    #            'anti_semitism.csv',
-    #            'black_separatist.csv',
-    #            'white_nationalist.csv',
-    #            'neo_nazi.csv',
-    #            'hate_music.csv',
-    #            'christian_identity.csv',
-    #            'anti_immigration.csv',
-    #            'holocaust_identity.csv',
-    #            'neo_confederate.csv',
-    #            'anti_muslim.csv',
-    #            'anti_lgbtq.csv',
-    #            'anti_catholic.csv',
-    #            'racist_skinhead.csv',
-    #            'radical_traditional_catholic.csv']
-    # cat_order = ['anti_semitism.csv',
-    #              'neo_confederate.csv',
-    #              'anti_immigration.csv',
-    #              'white_nationalist.csv',
-    #              'neo_nazi.csv',
-    #              'christian_identity.csv',
-    #              'anti_catholic.csv',
-    #              'holocaust_identity.csv',
-    #              'radical_traditional_catholic.csv',
-    #              'anti_lgbtq.csv',
-    #              'black_separatist.csv',
-    #              'hate_music.csv',
-    #              'anti_muslim.csv',
-    #              'racist_skinhead.csv',
-    #              'ku_klux_klan.csv']
     print("=" * 20 + "INFORMATION" + "=" * 20)
     print(training_config)
     print(model_config)
@@ -250,7 +195,7 @@ def main():
     print(options.train_path)
     print("=" * 20 + "INFORMATION" + "=" * 20)
     print("=" * 20 + "TRAINING STARTED" + "=" * 20)
-    model = run_sequence(
+    model, back_results_cat_order = run_sequence(
         options.train_path,
         options.test_path,
         options.dev_path,
@@ -258,6 +203,9 @@ def main():
         training_config,
         model_config,
     )
+    results_df = pd.DataFrame(back_results_cat_order)
+    Path(options.results_path).parent.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(options.results_path, index=False)
     print("=" * 20 + "TRAINING FINISHED" + "=" * 20)
 
 
