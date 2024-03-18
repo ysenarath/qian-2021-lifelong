@@ -532,6 +532,8 @@ def run_sequence(
 
     seen_groups = []
 
+    back_results_cat_order = []
+
     for i, fname in enumerate(cat_order):
         for text, pos_group, neg_group in training_data[fname[:-4]]:
             if pos_group not in seen_groups:
@@ -795,6 +797,18 @@ def run_sequence(
                 "\tranking back acc\t",
                 result["acc"],
             )
+            back_results_cat_order.append(
+                {
+                    "curr_cat_index": i,
+                    "curr_cat_name": cat_order[i][:-4],
+                    "back_cat_index": ind_pred,
+                    "back_cat_name": cat_order[ind_pred][:-4],
+                    "acc": result["acc"],
+                    "macro_f1": result["macro_f1"],
+                    "micro_f1": result["micro_f1"],
+                    "binary_f1": result["f1"],
+                }
+            )
         print(
             "ranking back avg macro:\t",
             statistics.mean(average_results["macro"]),
@@ -846,4 +860,4 @@ def run_sequence(
                 "\tranking forw avg acc:\t",
                 statistics.mean(average_results["acc"]),
             )
-    return model
+    return model, back_results_cat_order
